@@ -1,5 +1,7 @@
 name: 'Auto Git Modules'
 description: 'A GitHub Action for automatically syncing changes to .gitmodules with the rest of the Git repository'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'
+  steps:
+    - run: node .
+      shell: bash
