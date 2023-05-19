@@ -1,0 +1,17 @@
+name: test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@main
+        with:
+          # Note that `submodules: recursive` would file if added to `.gitmoodules` by hand
+          ref: main
+
+      - name: Run the script
+        run: |
+          node --test --test-name-pattern="add"
+          node --test --test-name-pattern="remove"
+          node --test --test-name-pattern="clone"

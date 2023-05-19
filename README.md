@@ -24,3 +24,34 @@ Action and not worry about the Dockerfile.
 See:
 - https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 - https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+
+## Tests
+
+`node --test --test-name-pattern=…`
+
+## Tasks
+
+### Introduce and include `parseGitSubmoduleStatusCommand.js`
+
+I have introduced this check in the test but it should happen in the main script
+when running outside of the script context as well.
+
+### Fix the tests not being able to run in parallel for some reason
+
+The assertions fail if the tests are allowed to run all at one.
+I am not sure if the Node test runner is running them in parallel - I do not
+think that is the case, but I couldn't get a straight word out of the Node test
+runner documentation.
+The closest to any mention of whether the tests run in parallel or sequentially
+is this excerpt but that's related to the order in which the test runner reports
+the results:
+
+> Once a test function finishes executing, the results are reported as quickly
+> as possible while maintaining the order of the tests.
+
+https://nodejs.org/api/test.html#extraneous-asynchronous-activity
+
+Maybe the file system operations lag a little bit and there needs to be a delay
+between the tests or what.
+
+For now I run them one by one.
