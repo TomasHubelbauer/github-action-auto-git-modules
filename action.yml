@@ -3,5 +3,51 @@ description: 'A GitHub Action for automatically syncing changes to .gitmodules w
 runs:
   using: 'composite'
   steps:
-    - run: node .
-      shell: bash
+    - name: Check out repository code
+      uses: actions/checkout@main
+      with:
+        # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
+        ref: main
+
+    - name: Run the script
+      run: node .
+
+    - name: Sync submodules
+      run: git -c protocol.file.allow=always submodule update --init --recursive --remote
+
+    - name: Print changes
+      run: git status
+
+    - name: Commit and push the change to the GitHub repository from the agent
+      run: |
+        # Configure Git for the push from the workflow to the repository
+        # (This is needed even with the workflow PAT)
+        # These credentials will make the commit associate with the GitHub Actions service account
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+
+    - name: Stage the changes resulting from the above steps
+      run: git add *
+
+    - name: Bail if there are no changes staged to commit
+      id: bail
+      continue-on-error: true
+      run: |
+        git status
+        if git diff-index --quiet HEAD --; then
+          echo "bail=true" >> $GITHUB_OUTPUT
+        else
+          echo "bail=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit the staged changes to the workflow repository
+      if: ${{steps.bail.outputs.bail == 'false'}}
+      run: git commit -m "Commit submodules sync changes from the workflow"
+
+    - name: Rebase if the branch has changed meanwhile or fail on conflicts
+      if: ${{steps.bail.outputs.bail == 'false'}}
+      run: git pull --rebase
+
+    - name: Push the commit to the workflow repository
+      if: ${{steps.bail.outputs.bail == 'false'}}
+      run: git push
