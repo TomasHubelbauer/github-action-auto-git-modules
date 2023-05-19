@@ -11,6 +11,11 @@ runs:
 
     - name: Print the working directory path and tree
       run: |
+        pwd
+        tree
+        cd ..
+        pwd
+        tree
         cd ..
         pwd
         tree
