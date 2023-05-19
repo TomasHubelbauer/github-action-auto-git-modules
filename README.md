@@ -7,6 +7,8 @@ https://github.com/TomasHubelbauer/github-actions-auto-gitmodules
 
 ## Notes
 
+### JavaScript / Docker / composite GitHub Action choice
+
 I started off wanting to make this a JavaScript-based GitHub Action, but the
 GitHub Actions runtime forces the use of Node 12 or Node 16 for JavaScript-based
 Actions making this a no-go for me, because my code is written for Node 18 and I
@@ -24,6 +26,55 @@ Action and not worry about the Dockerfile.
 See:
 - https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 - https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+
+## How adding a submodule works
+
+```sh
+git submodule add https://github.com/TomasHubelbauer/git-demo-submodule
+```
+
+This will:
+
+- Clone the linked repository into a directory named after it
+- Create a directory in `.git/modules` for the submodule
+- Update the `.git/config` file to add a new `submodule` section
+- Create or update a file name `.gitmodules`
+
+## How removing a submodule works
+
+```sh
+# Remove the directory of the submodule repository
+# Use `--cached` in case the submodule directory was not committed yet
+# Use `--force` if the submodule has changes that have not been committed yet
+git rm git-demo-submodule
+
+# Remove the directory of the submodule directory in `.git/modules`
+rm -rf .git/modules/git-demo-submodule
+
+# Remove the entry of the submodule in `.git/config`
+git config --remove-section submodule.git-demo-submodule
+```
+
+Sources:
+
+- https://stackoverflow.com/a/1260982/2715716
+- https://stackoverflow.com/a/35778105/2715716
+
+## How checking out with submodules works
+
+Clone with submodules:
+
+```sh
+# Add `--remote-submodules` to also update the submodules to latest
+git clone https://github.com/TomasHubelbauer/github-actions-auto-gitmodules --recurse-submodules
+```
+
+Update submodules:
+
+```sh
+# Add `--remote` to update the submodule to latest
+git submodule update --recursive
+```
 
 ## Tests
 
