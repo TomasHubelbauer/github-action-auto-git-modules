@@ -11,12 +11,15 @@ runs:
 
     - name: Run the script
       run: node .
+      shell: bash
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
+      shell: bash
 
     - name: Print changes
       run: git status
+      shell: bash
 
     - name: Commit and push the change to the GitHub repository from the agent
       run: |
@@ -25,9 +28,11 @@ runs:
         # These credentials will make the commit associate with the GitHub Actions service account
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
+      shell: bash
 
     - name: Stage the changes resulting from the above steps
       run: git add *
+      shell: bash
 
     - name: Bail if there are no changes staged to commit
       id: bail
@@ -39,15 +44,19 @@ runs:
         else
           echo "bail=false" >> $GITHUB_OUTPUT
         fi
+      shell: bash
 
     - name: Commit the staged changes to the workflow repository
       if: ${{steps.bail.outputs.bail == 'false'}}
       run: git commit -m "Commit submodules sync changes from the workflow"
+      shell: bash
 
     - name: Rebase if the branch has changed meanwhile or fail on conflicts
       if: ${{steps.bail.outputs.bail == 'false'}}
       run: git pull --rebase
+      shell: bash
 
     - name: Push the commit to the workflow repository
       if: ${{steps.bail.outputs.bail == 'false'}}
       run: git push
+      shell: bash
