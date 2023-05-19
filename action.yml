@@ -9,6 +9,12 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
         ref: main
 
+    - name: Print the working directory path and tree
+      run: |
+        pwd
+        tree
+      shell: bash
+
     - name: Run the script
       run: node .
       shell: bash
