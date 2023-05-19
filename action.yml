@@ -1,0 +1,8 @@
+name: 'Auto Git Modules'
+description: 'A GitHub Action for automatically syncing changes to .gitmodules with the rest of the Git repository'
+runs:
+  # Note that Node 16 is the only supported JavaScript runtime :(
+  # See https://github.com/actions/runner/issues/2255
+  # See https://github.com/orgs/community/discussions/53217
+  using: 'node16'
+  main: 'index.js'
