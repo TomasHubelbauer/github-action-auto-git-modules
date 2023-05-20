@@ -34,6 +34,24 @@ https://github.com/TomasHubelbauer/github-actions-auto-gitmodules
 
 ## Notes
 
+### GitHub Pages
+
+If you use this Action to pull submodules to a repository which has associated
+GitHub Pages, the submodules directories will automatically be pulled and made
+available as a part of the GitHub Pages site:
+
+https://docs.github.com/en/pages/getting-started-with-github-pages/using-submodules-with-github-pages
+
+Note that by default GitHub Pages uses Jekyll and Jekyll prevents access to some
+files, including hidden files (whose names start with a period).
+To turn this off to be able to fetch `.gitmodules` in the site with JavaScript
+and build and index of the site including the modules, create a file named
+`.nojekyll`.
+However, this will prevent MarkDown to HTML so if you'd like to preserve that
+for the main repository and the submodule directories, do not create this file
+and instead add a new GitHub Actions workflow which dumps the list of the Git
+Modules to some data file your site can use.
+
 ### JavaScript / Docker / composite GitHub Action choice
 
 I started off wanting to make this a JavaScript-based GitHub Action, but the
