@@ -23,10 +23,14 @@ runs:
     #   run: npm install --prefix ${{ env.GITHUB_ACTION_PATH }}
     #   shell: bash
 
+    # - name: Run the script
+    #   run: node .
+    #   shell: bash
+    #   working-directory: ${{ env.GITHUB_ACTION_PATH }}
+
     - name: Run the script
-      run: node .
+      run: node ${{ env.GITHUB_ACTION_PATH }}
       shell: bash
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
