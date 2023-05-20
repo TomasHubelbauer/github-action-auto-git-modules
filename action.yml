@@ -6,7 +6,7 @@ runs:
     - name: Check out repository code
       uses: actions/checkout@main
       with:
-        # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
+        # Note that `submodules: recursive` would fail if added to `.gitmodules` by hand
         ref: main
 
     # - name: Install @actions/core for the core.info replacement for console.log
@@ -17,6 +17,7 @@ runs:
     - name: Install @actions/core for the core.info replacement for console.log
       run: |
         cd ${{ env.GITHUB_ACTION_PATH }}
+        pwd
         npm install
       shell: bash
 
