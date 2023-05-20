@@ -5,6 +5,11 @@ added or removed that don't correspond to the required changes elsewhere in Git
 to properly add or remove the submodule, it syncs the rest of the Git repository
 to make the submodule properly added or removed.
 
+**Note:** It is crucial that the repository you use this Action in has the
+Settings > Actions > General > Workflow permissions > Read and write permissions
+permission enabled, otherwise the Action will not be able to push submodule
+changes back to the repository automatically!
+
 This makes it possible to add and remove submodules in a repository just by
 editing `.gitmodules` via the GitHub web editor, no need to clone the code.
 
