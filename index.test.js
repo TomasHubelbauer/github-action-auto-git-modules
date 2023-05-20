@@ -328,3 +328,54 @@ test('clone with submodules', async () => {
   await clearSuperRepository();
   await fs.promises.rm('super.git', { recursive: true });
 });
+
+// Note that this test tests the workflow moreso than it does the script itself
+// because the script only concerns itself with adding/removing the submodules
+// and the workflow through the `git submodule update` step with `--remote`
+// takes care of noticing the new commits in updated existing submodules
+test('update existing submodule', async () => {
+  await clearStrayDirectories();
+  await makeSuperRepository();
+  await makeSubRepository();
+  await addSubmodule();
+
+  process.chdir('sub');
+
+  await fs.promises.writeFile('README.md', 'Hello, world!\n\nThis is a change.\n');
+
+  // Stage the README change
+  assert.equal(
+    await runCommand('git add README.md'),
+    ''
+  );
+
+  // Commit the README change
+  assert.match(
+    // Note that `user.name` and `user.email` are there for GitHub Actions where
+    // there is no Git identity set up by default and are not needed locally
+    await runCommand('git -c user.name="Tomas Hubelbauer" -c user.email="tomas@hubelbauer.net" commit -m "Update the README" -m "This change is to verify the script picks it up"'),
+    /^\[main \w{7}\] Update the README\n 1 file changed, 2 insertions\(\+\)\n$/
+  );
+
+  process.chdir('..');
+
+  process.chdir('super');
+
+  assert.match(
+    await runCommand('git -c protocol.file.allow=always submodule update --init --recursive --remote', 'stdio'),
+    /^Submodule path 'sub': checked out '\w{40}'\n\nFrom .*?\/sub\n   \w{7}\.\.\w{7}  main       -> origin\/main\n$/
+  );
+
+  assert.equal(await fs.promises.readFile('sub/README.md', 'utf-8'), 'Hello, world!\n\nThis is a change.\n');
+
+  // Validate the status after updating the submodule
+  assert.match(
+    await runCommand('git status'),
+    /^On branch main\nChanges not staged for commit:\n  \(use "git add <file>..." to update what will be committed\)\n  \(use "git restore <file>..." to discard changes in working directory\)\n\tmodified:   sub \(new commits\)\n\nno changes added to commit \(use "git add" and\/or "git commit -a"\)\n$/
+  );
+
+  process.chdir('..');
+
+  await clearSubRepository();
+  await clearSuperRepository();
+});

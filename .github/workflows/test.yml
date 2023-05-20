@@ -15,3 +15,4 @@ jobs:
           node --test --test-name-pattern="add"
           node --test --test-name-pattern="remove"
           node --test --test-name-pattern="clone"
+          node --test --test-name-pattern="update"
