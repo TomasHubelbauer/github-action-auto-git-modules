@@ -10,7 +10,7 @@ runs:
         ref: main
 
     - name: Run the script
-      run: node ${{ env.GITHUB_ACTION_PATH }} 1>&2
+      run: node ${{ env.GITHUB_ACTION_PATH }}
       shell: bash
 
     - name: Sync submodules
