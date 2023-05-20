@@ -128,3 +128,13 @@ Maybe the file system operations lag a little bit and there needs to be a delay
 between the tests or what.
 
 For now I run them one by one.
+
+### Verify and add a test for the script syncing already added submodule changes
+
+1. Add a submodule
+2. Make a change to the submodule
+3. Run the script
+4. Ensure the submoduel is now at its repository's latest change again
+
+I think the `--remote` flag in the workflow definition should be taking care of
+this but I am not 100 % sure.
