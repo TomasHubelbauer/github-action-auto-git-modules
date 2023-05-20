@@ -1,7 +1,29 @@
 # GitHub Action **Auto Git Modules**
 
-In this repository, I am to turn the below linked experimental repository into a
-composite GitHub Action.
+This GitHub Action looks at the `.gitmodules` file and if there are new entries
+added or removed that don't correspond to the required changes elsewhere in Git
+to properly add or remove the submodule, it syncs the rest of the Git repository
+to make the submodule properly added or removed.
+
+This makes it possible to add and remove submodules in a repository just by
+editing `.gitmodules` via the GitHub web editor, no need to clone the code.
+
+It is recommended to run this Action on these triggers:
+
+- `push` to sync submodules after each commit in case it changed `.gitmodules`
+
+- `schedule` to sync changes in the submodule repositories regularly
+
+  This is so that the submodule doesn't remain stuck on the version it was at
+  when it was first added.
+
+- `workflow_dispatch` to make it possible to sync the submodules by hand
+
+  This is useful when you know the submodule content has changed and you don't
+  want to wait for the schedule to pick the change up.
+
+This Action is based on a repository where I first spiked this idea and which
+now serves as a demonstration for it:
 
 https://github.com/TomasHubelbauer/github-actions-auto-gitmodules 
 
