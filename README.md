@@ -106,28 +106,3 @@ Maybe the file system operations lag a little bit and there needs to be a delay
 between the tests or what.
 
 For now I run them one by one.
-
-### Find a nicer way to execute `index.js`
-
-Right now I am using this command to run `index.js`:
-
-```yml
-- name: Run the script
-  run: node ../../_actions/TomasHubelbauer/github-action-auto-git-modules/main
-  shell: bash
-```
-
-I would like to use this:
-
-```yml
-- name: Run the script
-  run: node .
-  shell: bash
-```
-
-I don't want to change the working directory because the script is supposed to
-operate on the repository that runs this Action, but I need a more stable way to
-refer to the script path.
-
-I think `{{ env.GITHUB_ACTION_PATH }}` should be what I need:
-https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
