@@ -42,15 +42,19 @@ available as a part of the GitHub Pages site:
 
 https://docs.github.com/en/pages/getting-started-with-github-pages/using-submodules-with-github-pages
 
-Note that by default GitHub Pages uses Jekyll and Jekyll prevents access to some
-files, including hidden files (whose names start with a period).
-To turn this off to be able to fetch `.gitmodules` in the site with JavaScript
-and build and index of the site including the modules, create a file named
-`.nojekyll`.
-However, this will prevent MarkDown to HTML so if you'd like to preserve that
-for the main repository and the submodule directories, do not create this file
-and instead add a new GitHub Actions workflow which dumps the list of the Git
-Modules to some data file your site can use.
+If you want to use the `.gitmodules` file to dynamically fetch a list of the
+submodules added to the GitHub Pages site repository, you can use `fetch` to
+download `.gitmodules` and process it using JavaScript.
+
+By default Jekyll (which is used on GitHub Pages unless the `.nojekyll` file
+exists - but then automatic MarkDown to HTML conversion doesn't work which is
+useful in case any of the submodules do not have their own HTML files) excludes
+any paths starting with a `.` from the build.
+To have access to `.gitmodules`, add it to `_config.yml`:
+
+```yml
+include: ['.gitmodules']
+```
 
 ### JavaScript / Docker / composite GitHub Action choice
 
