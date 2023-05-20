@@ -12,6 +12,7 @@ runs:
     - name: Install @actions/core for the core.info replacement for console.log
       run: npm install
       shell: bash
+      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Run the script
       run: node ${{ env.GITHUB_ACTION_PATH }}
