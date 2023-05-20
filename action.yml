@@ -29,7 +29,7 @@ runs:
     #   working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Run the script
-      run: node ${{ env.GITHUB_ACTION_PATH }}
+      run: node ${{ github.action_path }}
       shell: bash
 
     - name: Sync submodules
