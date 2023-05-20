@@ -9,16 +9,9 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
         ref: main
 
-    - name: Run tests
-      run: |
-        echo "echo test $CI test"
-      shell: bash
-
     - name: Run the script
-      run: node ${{ env.GITHUB_ACTION_PATH }}
+      run: node ${{ env.GITHUB_ACTION_PATH }} | cat
       shell: bash
-      env:
-        ACTIONS_STEP_DEBUG: true
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
