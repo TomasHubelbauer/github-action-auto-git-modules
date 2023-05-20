@@ -8,6 +8,8 @@ import runCommand from './runCommand.js';
 import assert from 'node:assert/strict';
 
 console.log('console.log test', process.env.CI);
+console.log('::noticeconsole.log test', process.env.CI);
+console.log('::notice::console.log test', process.env.CI);
 process.stdout.write('process.stdout.write test\n' + process.env.CI + '\n');
 
 const dotGitmodules = await drainAsyncGenerator(parseDotGitmodulesFile());
