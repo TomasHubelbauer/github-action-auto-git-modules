@@ -9,7 +9,6 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
         ref: main
 
-    # TODO: Find a nicer way to do this! This is a hack to get the action to run
     - name: Run the script
       run: node ${{ env.GITHUB_ACTION_PATH }}
       shell: bash
