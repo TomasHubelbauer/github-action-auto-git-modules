@@ -14,18 +14,19 @@ runs:
     #   run: pwd && tree && npm install
     #   shell: bash
 
-    - name: Test working-directory
-      run: pwd && tree
-      shell: bash
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
+    # - name: Test working-directory
+    #   run: pwd && tree
+    #   shell: bash
+    #   working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
-    - name: Install @actions/core for the core.info replacement for console.log
-      run: npm install --prefix ${{ env.GITHUB_ACTION_PATH }}
-      shell: bash
+    # - name: Install @actions/core for the core.info replacement for console.log
+    #   run: npm install --prefix ${{ env.GITHUB_ACTION_PATH }}
+    #   shell: bash
 
     - name: Run the script
-      run: node ${{ env.GITHUB_ACTION_PATH }}
+      run: node .
       shell: bash
+      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
