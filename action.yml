@@ -29,8 +29,9 @@ runs:
     #   working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Run the script
-      run: node ${{ github.action_path }}
+      run: node .
       shell: bash
+      working-directory: ${{ github.action_path }}
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
