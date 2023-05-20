@@ -9,11 +9,6 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmodules` by hand
         ref: main
 
-    - name: Install @actions/core for the core.info replacement for console.log
-      run: npm install
-      shell: bash
-      working-directory: ${{ github.action_path }}
-
     - name: Run the script
       run: node ${{ github.action_path }}
       shell: bash

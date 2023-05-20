@@ -6,20 +6,19 @@ import parseDotGitModulesDirectory from './parseDotGitModulesDirectory.js';
 import parseDotGitConfigFile from './parseDotGitConfigFile.js';
 import runCommand from './runCommand.js';
 import assert from 'node:assert/strict';
-import core from '@actions/core';
 
 const dotGitmodules = await drainAsyncGenerator(parseDotGitmodulesFile());
 const gitLsFiles = await drainAsyncGenerator(parseGitLsFilesCommand());
 
 if (process.env.CI) {
-  core.info('.gitmodules:');
+  console.log('.gitmodules:');
   for (const { name, path, url } of dotGitmodules) {
-    core.info(`\t${name} (${path}): ${url}`);
+    console.log(`\t${name} (${path}): ${url}`);
   }
 
-  core.info('git ls-files:');
+  console.log('git ls-files:');
   for (const path of gitLsFiles) {
-    core.info(`\t${path}`);
+    console.log(`\t${path}`);
   }
 }
 
@@ -29,7 +28,7 @@ for (const gitLsFile of gitLsFiles) {
   if (!dotGitmodule) {
     const stdout = await runCommand(`git rm --cached ${gitLsFile}`);
     if (process.env.CI) {
-      core.info(`Removed submodule ${gitLsFile} from index because it is not in .gitmodules: ${stdout}`);
+      console.log(`Removed submodule ${gitLsFile} from index because it is not in .gitmodules: ${stdout}`);
     }
   }
 }
@@ -38,14 +37,14 @@ const dotGitModules = await drainAsyncGenerator(parseDotGitModulesDirectory());
 const dotGitConfig = await drainAsyncGenerator(parseDotGitConfigFile());
 
 if (process.env.CI) {
-  core.info('.git/modules:');
+  console.log('.git/modules:');
   for (const path of dotGitModules) {
-    core.info(`\t${path}`);
+    console.log(`\t${path}`);
   }
 
-  core.info('.git/config:');
+  console.log('.git/config:');
   for (const { name, url, active } of dotGitConfig) {
-    core.info(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
+    console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
   }
 }
 
@@ -55,7 +54,7 @@ for (const dotGitModule of dotGitModules) {
   if (!dotGitmodule) {
     await fs.promises.rm(`.git/modules/${dotGitModule}`, { recursive: true });
     if (process.env.CI) {
-      core.info(`Removed submodule ${dotGitModule} from .git/modules because it is not in .gitmodules.`);
+      console.log(`Removed submodule ${dotGitModule} from .git/modules because it is not in .gitmodules.`);
     }
   }
 }
@@ -66,7 +65,7 @@ for (const { name } of dotGitConfig) {
   if (!dotGitmodule) {
     const stdout = await runCommand(`git config --remove-section submodule.${name}`);
     if (process.env.CI) {
-      core.info(`Removed submodule ${name} from .git/config because it is not in .gitmodules: ${stdout}`);
+      console.log(`Removed submodule ${name} from .git/config because it is not in .gitmodules: ${stdout}`);
     }
   }
 }
@@ -92,15 +91,15 @@ for (const dotGitmodule of dotGitmodules) {
     // Note that the `done.` part appears in tests but not in real runtime?
     assert.match(stderr, /^Cloning into '.*?'...\n(done.\n)?$/);
     if (process.env.CI) {
-      core.info(`Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.`);
+      console.log(`Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.`);
     }
   }
 
   const dotGitConfig = await drainAsyncGenerator(parseDotGitConfigFile());
   if (process.env.CI) {
-    core.info('.git/config:');
+    console.log('.git/config:');
     for (const { name, url, active } of dotGitConfig) {
-      core.info(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
+      console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
     }
   }
 

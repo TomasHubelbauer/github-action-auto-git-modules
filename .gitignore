@@ -1,9 +1,3 @@
-# Node
-node_modules
-
-# NPM
-package-lock.json
-
 # Tests
 super
 super.git
