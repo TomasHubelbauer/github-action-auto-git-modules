@@ -7,6 +7,9 @@ import parseDotGitConfigFile from './parseDotGitConfigFile.js';
 import runCommand from './runCommand.js';
 import assert from 'node:assert/strict';
 
+console.log('console.log test', process.env.CI);
+process.stdout.write('process.stdout.write test\n' + process.env.CI + '\n');
+
 const dotGitmodules = await drainAsyncGenerator(parseDotGitmodulesFile());
 const gitLsFiles = await drainAsyncGenerator(parseGitLsFilesCommand());
 

@@ -9,6 +9,11 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmoodules` by hand
         ref: main
 
+    - name: Run tests
+      run: |
+        echo "echo test $CI test"
+      shell: bash
+
     - name: Run the script
       run: node ${{ env.GITHUB_ACTION_PATH }}
       shell: bash
