@@ -54,6 +54,17 @@ See:
 - https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 - https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
 
+## `@actions/core`'s `core.info` as a replacement for `console.log`
+
+This is a big defeat but I could not find a way to make `console.log`s appear in
+the logs of the workflow that uses this custom action.
+I think GitHub hides this output by default and I wasn't able to force it to go
+through by neither of `process.stdout.write`, setting `ACTIONS_STEP_DEBUG` in
+this Action's `action.yml` nor the consuming workflow's `env` for this step or
+any other means.
+
+See https://github.com/actions/javascript-action/issues/27
+
 ## How adding a submodule works
 
 ```sh
