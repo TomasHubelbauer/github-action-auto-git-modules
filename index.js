@@ -124,7 +124,7 @@ for (const dotGitmodule of dotGitmodules) {
 // See https://github.com/nodejs/node/issues/34840
 function escapeShell(/** @type {string | undefined} */ string) {
   if (!string) {
-    return '';
+    return '""';
   }
 
   return '"' + string?.replace(/(["'$`\\])/g, '\\$1') + '"';
