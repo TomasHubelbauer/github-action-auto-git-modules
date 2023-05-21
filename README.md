@@ -1,5 +1,7 @@
 # GitHub Action **Auto Git Modules**
 
+[![test](https://github.com/TomasHubelbauer/github-action-auto-git-modules/actions/workflows/test.yml/badge.svg)](https://github.com/TomasHubelbauer/github-action-auto-git-modules/actions/workflows/test.yml)
+
 This GitHub Action looks at the `.gitmodules` file and if there are new entries
 added or removed that don't correspond to the required changes elsewhere in Git
 to properly add or remove the submodule, it syncs the rest of the Git repository
