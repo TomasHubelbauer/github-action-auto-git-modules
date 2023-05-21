@@ -123,6 +123,10 @@ for (const dotGitmodule of dotGitmodules) {
 // because "this seems like a userland thing hurr durr" ugh
 // See https://github.com/nodejs/node/issues/34840
 function escapeShell(/** @type {string | undefined} */ string) {
+  if (!string) {
+    return '';
+  }
+
   return '"' + string?.replace(/(["'$`\\])/g, '\\$1') + '"';
 }
 
@@ -164,7 +168,7 @@ if (process.env.SYNC_METADATA === 'true') {
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created-at "${created_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated-at "${updated_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed-at "${pushed_at}"`);
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage "${homepage}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage ${escapeShell(homepage)}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived ${archived}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.topics "${topics.join(',')}"`);
     console.log(`Synced metadata for ${dotGitmodule.name}.`);
