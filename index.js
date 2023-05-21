@@ -145,9 +145,9 @@ if (process.env.SYNC_METADATA === 'true') {
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description "${description}"`);
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created_at "${created_at}"`);
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated_at "${updated_at}"`);
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed_at "${pushed_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created-at "${created_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated-at "${updated_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed-at "${pushed_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage "${homepage}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived "${archived}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.topics "${topics.join(',')}"`);
