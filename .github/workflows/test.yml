@@ -10,9 +10,17 @@ jobs:
           # Note that `submodules: recursive` would file if added to `.gitmoodules` by hand
           ref: main
 
-      - name: Run the script
-        run: |
-          node --test --test-name-pattern="add"
-          node --test --test-name-pattern="remove"
-          node --test --test-name-pattern="clone"
-          node --test --test-name-pattern="update"
+      - name: Run the addition test
+        run: node --test --test-name-pattern="add"
+      
+      - name: Run the removal test
+        run: node --test --test-name-pattern="remove"
+      
+      - name: Run the cloning test
+        run: node --test --test-name-pattern="clone"
+      
+      - name: Run the update test
+        run: node --test --test-name-pattern="update"
+
+      - name: Run the clone after deletion test
+        run: node --test --test-name-pattern="handle"

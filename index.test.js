@@ -118,7 +118,7 @@ async function makeSubRepository() {
   process.chdir('..');
 }
 
-async function addSubmodule() {
+async function addSubmodule(/** @type {string} */ context) {
   // Go to the `super` directory to be able to add the submodule
   process.chdir('super');
 
@@ -127,7 +127,7 @@ async function addSubmodule() {
 
   // Run the main script which should notice this and sort out the repo state
   // Use the cache-buster to force the module to fully re-evaluate ach time
-  await import('./index.js?add');
+  await import('./addSubmodules.js?' + context);
 
   // Assert the `.gitmodules` file is not empty (contains the module)
   assert.deepEqual(
@@ -189,7 +189,7 @@ async function addSubmodule() {
   process.chdir('..');
 }
 
-async function removeSubmodule() {
+async function removeSubmodule(/** @type {string} */ context) {
   // Go to the `super` directory to be able to remove the submodule
   process.chdir('super');
 
@@ -198,7 +198,7 @@ async function removeSubmodule() {
 
   // Run the main script which should notice this and sort out the repo state
   // Use the cache-buster to force the module to fully re-evaluate ach time
-  await import('./index.js?delete');
+  await import('./removeSubmodules.js?' + context);
 
   // Assert the `.gitmodules` file is empty (contains no modules)
   assert.deepEqual(
@@ -298,7 +298,7 @@ test('add submodule', async () => {
   await clearStrayDirectories();
   await makeSuperRepository();
   await makeSubRepository();
-  await addSubmodule();
+  await addSubmodule('add');
   await clearSuperRepository();
   await clearSubRepository();
 });
@@ -307,8 +307,8 @@ test('remove submodule', async () => {
   await clearStrayDirectories();
   await makeSuperRepository();
   await makeSubRepository();
-  await addSubmodule();
-  await removeSubmodule();
+  await addSubmodule('remove');
+  await removeSubmodule('remove');
   await clearSuperRepository();
   await clearSubRepository();
 });
@@ -317,20 +317,22 @@ test('clone with submodules', async () => {
   await clearStrayDirectories();
   await makeSuperRepository();
   await makeSubRepository();
-  await addSubmodule();
+  await addSubmodule('clone');
   await bareSuperRepository();
   await cloneSuperRepository();
 
   process.chdir('super');
+
+  // Use the cache-buster to force the module to fully re-evaluate ach time
+  await import('./removeSubmodules.js?clone');
 
   assert.match(
     await runCommand('git -c protocol.file.allow=always submodule update --init --recursive --remote', 'stdio'),
     /^Submodule path 'sub': checked out '\w{40}'\n\nSubmodule 'sub' \(.*?\/sub\) registered for path 'sub'\nCloning into '.*?\/sub'...\ndone.\n$/
   );
 
-  // Run the main script to ensure it works as a part of the workflow script
   // Use the cache-buster to force the module to fully re-evaluate ach time
-  await import('./index.js?clone');
+  await import('./addSubmodules.js?clone');
 
   // Assert the `.gitmodules` file is not empty (contains the module)
   assert.deepEqual(
@@ -364,6 +366,60 @@ test('clone with submodules', async () => {
   await clearSuperRepository();
 });
 
+test('handle existing submodule deletion', async () => {
+  await clearStrayDirectories();
+  await makeSuperRepository();
+  await makeSubRepository();
+  await addSubmodule('deletion');
+  await bareSuperRepository();
+  await cloneSuperRepository();
+
+  process.chdir('super');
+
+  // Erase the `.gitmodules` file to simulate removing one via the GitHub web UI
+  await fs.promises.rm('.gitmodules');
+
+  // Use the cache-buster to force the module to fully re-evaluate ach time
+  await import('./removeSubmodules.js?deletion');
+
+  assert.equal(
+    await runCommand('git -c protocol.file.allow=always submodule update --init --recursive --remote', 'stdio'),
+    '\n'
+  );
+
+  // Use the cache-buster to force the module to fully re-evaluate ach time
+  await import('./addSubmodules.js?deletion');
+
+  // Assert the `.gitmodules` file is not empty (contains the module)
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitmodulesFile()),
+    []
+  );
+
+  // Assert the `git ls-files` command returns the submodule
+  assert.deepEqual(
+    await drainAsyncGenerator(parseGitLsFilesCommand()),
+    []
+  );
+
+  // Assert the `.git/modules` directory is not empty (exists with the submodule)
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitModulesDirectory()),
+    []
+  );
+
+  // Assert the `.git/config` file has a corresponding `submodule` section
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitConfigFile()),
+    []
+  );
+
+  process.chdir('..');
+
+  await clearSubRepository();
+  await clearSuperRepository();
+});
+
 // Note that this test tests the workflow moreso than it does the script itself
 // because the script only concerns itself with adding/removing the submodules
 // and the workflow through the `git submodule update` step with `--remote`
@@ -372,7 +428,7 @@ test('update existing submodule', async () => {
   await clearStrayDirectories();
   await makeSuperRepository();
   await makeSubRepository();
-  await addSubmodule();
+  await addSubmodule('update');
 
   process.chdir('sub');
 

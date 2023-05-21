@@ -1,73 +1,17 @@
-import fs from 'fs';
-import drainAsyncGenerator from './drainAsyncGenerator.js';
-import parseDotGitmodulesFile from './parseDotGitmodulesFile.js';
-import parseGitLsFilesCommand from './parseGitLsFilesCommand.js';
-import parseDotGitModulesDirectory from './parseDotGitModulesDirectory.js';
-import parseDotGitConfigFile from './parseDotGitConfigFile.js';
-import runCommand from './runCommand.js';
 import assert from 'node:assert/strict';
+import runCommand from './runCommand.js';
+import dotGitmodules from './dotGitmodulesFile.js?add';
+import dotGitModules from './dotGitModulesDirectory.js?add';
+import escapeShell from './escapeShell.js';
 
-const dotGitmodules = await drainAsyncGenerator(parseDotGitmodulesFile());
-const gitLsFiles = await drainAsyncGenerator(parseGitLsFilesCommand());
-
-if (process.env.CI) {
-  console.log('.gitmodules:');
-  for (const { name, path, url } of dotGitmodules) {
-    console.log(`\t${name} (${path}): ${url}`);
-  }
-
-  console.log('git ls-files:');
-  for (const path of gitLsFiles) {
-    console.log(`\t${path}`);
-  }
+console.log('addSubmodules: .gitmodules:');
+for (const { name, path, url } of dotGitmodules) {
+  console.log(`\t${name} (${path}): ${url}`);
 }
 
-// Remove submodule directories removed from `.gitmodules` but not by the Git command
-for (const gitLsFile of gitLsFiles) {
-  const dotGitmodule = dotGitmodules.find(dotGitmodule => dotGitmodule.path === gitLsFile);
-  if (!dotGitmodule) {
-    const stdout = await runCommand(`git rm --cached ${gitLsFile}`);
-    if (process.env.CI) {
-      console.log(`Removed submodule ${gitLsFile} from index because it is not in .gitmodules: ${stdout}`);
-    }
-  }
-}
-
-const dotGitModules = await drainAsyncGenerator(parseDotGitModulesDirectory());
-const dotGitConfig = await drainAsyncGenerator(parseDotGitConfigFile());
-
-if (process.env.CI) {
-  console.log('.git/modules:');
-  for (const path of dotGitModules) {
-    console.log(`\t${path}`);
-  }
-
-  console.log('.git/config:');
-  for (const { name, url, active } of dotGitConfig) {
-    console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
-  }
-}
-
-// Remove bits of submodules removed from `.gitmodules` but not by the Git command
-for (const dotGitModule of dotGitModules) {
-  const dotGitmodule = dotGitmodules.find(dotGitmodule => dotGitmodule.path === dotGitModule);
-  if (!dotGitmodule) {
-    await fs.promises.rm(`.git/modules/${dotGitModule}`, { recursive: true });
-    if (process.env.CI) {
-      console.log(`Removed submodule ${dotGitModule} from .git/modules because it is not in .gitmodules.`);
-    }
-  }
-}
-
-// Remove sections of submodules removed from `.gitmodules` but not by the Git command
-for (const { name } of dotGitConfig) {
-  const dotGitmodule = dotGitmodules.find(dotGitmodule => dotGitmodule.name === name);
-  if (!dotGitmodule) {
-    const stdout = await runCommand(`git config --remove-section submodule.${name}`);
-    if (process.env.CI) {
-      console.log(`Removed submodule ${name} from .git/config because it is not in .gitmodules: ${stdout}`);
-    }
-  }
+console.log('addSubmodules: .git/modules:');
+for (const path of dotGitModules) {
+  console.log(`\t${path}`);
 }
 
 // Install submodules added by name to `.gitmodules` not added by the Git command
@@ -89,17 +33,14 @@ for (const dotGitmodule of dotGitmodules) {
     // TODO: Interleave the expected directory name /${dotGitmodule.name} here
     // Note that the `done.` part appears in tests but not in real runtime?
     assert.match(stderr, /^Cloning into '.*?'...\n(done.\n)?$/);
-    if (process.env.CI) {
-      console.log(`Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.`);
-    }
+    console.log(`Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.`);
   }
 
-  const dotGitConfig = await drainAsyncGenerator(parseDotGitConfigFile());
-  if (process.env.CI) {
-    console.log('.git/config:');
-    for (const { name, url, active } of dotGitConfig) {
-      console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
-    }
+  // Reload the .git/config file with changes already applied by cache busting
+  const { default: dotGitConfig } = await import('./dotGitConfigFile.js?refresh');
+  console.log('addSubmodules: .git/config:');
+  for (const { name, url, active } of dotGitConfig) {
+    console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
   }
 
   if (!dotGitConfig.find(dotGitConfig => dotGitConfig.name === dotGitmodule.name)) {
@@ -119,19 +60,6 @@ for (const dotGitmodule of dotGitmodules) {
   }
 }
 
-// Note that this is probably incorrect and Node doesn't ship an API for this
-// because "this seems like a userland thing hurr durr" ugh
-// See https://github.com/nodejs/node/issues/34840
-function escapeShell(/** @type {string | undefined} */ string) {
-  if (!string) {
-    return '""';
-  }
-
-  return '"' + string?.replace(/(["'$`\\])/g, '\\$1') + '"';
-}
-
-// TODO: Also fetch the README and add a `title` to the `.gitmodules` entry
-// See: https://api.github.com/repos/TomasHubelbauer/git-demo-submodule/readme
 if (process.env.SYNC_METADATA === 'true') {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN environment variable must be set to sync metadata.');

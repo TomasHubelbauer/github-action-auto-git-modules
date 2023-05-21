@@ -11,15 +11,22 @@ runs:
     - name: Check out repository code
       uses: actions/checkout@main
       with:
-        # Note `submodules: recursive` would not do `--remote` so we run by hand
+        # Note `submodules: recursive` would not do `--remote` and would fail if
+        # an existing submodule was removed from `.gitmodules` so we run the
+        # removal script first and then the submodule update with `--remove` and
+        # the addition script next.
         ref: main
+
+    - name: Run the removal script
+      run: node ${{ github.action_path }}/removeSubmodules.js
+      shell: bash
 
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
       shell: bash
 
-    - name: Run the script
-      run: node ${{ github.action_path }}
+    - name: Run the addition script
+      run: node ${{ github.action_path }}/addSubmodules.js
       shell: bash
       env:
         SYNC_METADATA: ${{ inputs.sync-metadata }}
