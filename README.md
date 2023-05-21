@@ -177,14 +177,3 @@ For now I run them one by one.
 ### Add a test for metadata sync by mocking the API call
 
 https://github.com/TomasHubelbauer/node-test-runner-mock-fetch
-
-### Fix and add a test for the workflow run after a module was deleted
-
-The `submodule update` fails in this case.
-This script will need to be a split to handle deletions first and additions
-after the clone I think?
-Otherwise the additions run into a problem of `.git/modules` and `.git/config`
-not being set up yet when the script runs before the `submodule update` command.
-
-To reproduce, go here and see what happens when the demo submodule is removed:
-https://github.com/TomasHubelbauer/hubelbauer.net/blob/main/.gitmodules
