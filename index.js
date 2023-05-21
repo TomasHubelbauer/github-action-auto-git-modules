@@ -120,22 +120,18 @@ for (const dotGitmodule of dotGitmodules) {
 }
 
 if (process.env.SYNC_METADATA === 'true') {
-  if (process.env.GITHUB_TOKEN) {
-    console.log('Syncing metadata for submodules using GitHub API with GITHUB_TOKEN.');
-  }
-  else {
-    console.log('Syncing metadata for submodules using GitHub API without GITHUB_TOKEN.');
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error('GITHUB_TOKEN environment variable must be set to sync metadata.');
   }
 
   for (const dotGitmodule of dotGitmodules) {
     const url = new URL(dotGitmodule.url);
     if (url.protocol !== 'https:') {
-      console.log('Skipping metadata sync for non-HTTPS submodule:', dotGitmodule.url);
-      continue;
+      throw new Error(`No support for non-HTTPS URLs: ${dotGitmodule.url}`);
     }
 
     const response = await fetch(
-      `https://api.github.com/repos${url.pathname}/contents/${dotGitmodule.path}`,
+      `https://api.github.com/repos${url.pathname}`,
       {
         headers: {
           Authorization: process.env.GITHUB_TOKEN ? `token ${process.env.GITHUB_TOKEN}` : undefined,
@@ -146,7 +142,7 @@ if (process.env.SYNC_METADATA === 'true') {
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
     console.log({
-      url, description, created_at, updated_at, pushed_at, homepage, archived, topics
+      dotGitmodule, description, created_at, updated_at, pushed_at, homepage, archived, topics
     });
   }
 }
