@@ -126,6 +126,14 @@ if (process.env.SYNC_METADATA === 'true') {
     throw new Error('GITHUB_TOKEN environment variable must be set to sync metadata.');
   }
 
+  /** @type {RequestInit} */
+  const init = {
+    headers: {
+      Authorization: `token ${process.env.GITHUB_TOKEN}`,
+      'User-Agent': 'TomasHubelbauer',
+    }
+  };
+
   for (const dotGitmodule of dotGitmodules) {
     const url = new URL(dotGitmodule.url);
     if (url.protocol !== 'https:') {
@@ -134,16 +142,15 @@ if (process.env.SYNC_METADATA === 'true') {
 
     console.log(`Syncing metadata for ${dotGitmodule.name}…`);
 
-    const response = await fetch(
-      `https://api.github.com/repos${url.pathname}`,
-      {
-        headers: {
-          Authorization: process.env.GITHUB_TOKEN ? `token ${process.env.GITHUB_TOKEN}` : undefined,
-          'User-Agent': 'TomasHubelbauer',
-        }
-      }
-    );
+    const titleResponse = await fetch(`https://api.github.com/repos${url.pathname}/readme`, init);
+    const titleData = await titleResponse.json();
+    const readme = Buffer.from(titleData.content, 'base64').toString('utf8');
+    const title = readme.match(/^# (?<title>.*?)\n/)?.groups?.title;
+    if (title) {
+      await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.title "${title}"`);
+    }
 
+    const response = await fetch(`https://api.github.com/repos${url.pathname}`, init);
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description "${description}"`);
