@@ -162,7 +162,7 @@ if (process.env.SYNC_METADATA === 'true') {
       console.log(`Synced title: ${escapeShell(title)}`);
     }
     else {
-      console.log(`No title found in README: ${readme.split('\n', 1)[0]}`);
+      console.log(`No title found in README: ${JSON.stringify(readme.split('\n', 1)[0])}`);
     }
 
     const response = await fetch(`https://api.github.com/repos${url.pathname}`, init);
