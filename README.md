@@ -155,10 +155,3 @@ Maybe the file system operations lag a little bit and there needs to be a delay
 between the tests or what.
 
 For now I run them one by one.
-
-### Handle the case when `.gitmodules` and `git ls-files` exist but not the rest
-
-This is erroring in this repository right now:
-https://github.com/TomasHubelbauer/hubelbauer.net/actions/workflows/git-submodules.yml
-
-Add a test for this, too.
