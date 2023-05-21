@@ -120,7 +120,7 @@ for (const dotGitmodule of dotGitmodules) {
   }
 }
 
-if (process.env.SYNC_METADATA !== 'false') {
+if (process.env.SYNC_METADATA === 'true') {
   if (process.env.GITHUB_TOKEN) {
     console.log('Syncing metadata for submodules using GitHub API with GITHUB_TOKEN.');
   }
