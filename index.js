@@ -81,8 +81,7 @@ for (const dotGitmodule of dotGitmodules) {
     const command = dotGitmodule.url.startsWith('./') || dotGitmodule.url.startsWith('../')
       // Note that `protocol.file.allow=always` is set to work around CVE-2022-39253
       // See https://twitter.com/TomasHubelbauer/status/1654844311928729605
-      // TODO: See if I can remove `${dotGitmodule.path}` and leave it implied
-      ? `git -c protocol.file.allow=always submodule add ${dotGitmodule.url} ${dotGitmodule.path}`
+      ? `git -c protocol.file.allow=always submodule add ${dotGitmodule.url}`
       : `git submodule add ${dotGitmodule.url}`
       ;
     const stderr = await runCommand(command, 'stderr');
