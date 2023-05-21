@@ -313,11 +313,37 @@ test('clone with submodules', async () => {
     'Cloning into \'super\'...\ndone.\n'
   );
 
+  await fs.promises.rm('super.git', { recursive: true });
+
   process.chdir('super');
 
   assert.match(
     await runCommand('git -c protocol.file.allow=always submodule update --init --recursive --remote', 'stdio'),
     /^Submodule path 'sub': checked out '\w{40}'\n\nSubmodule 'sub' \(.*?\/sub\) registered for path 'sub'\nCloning into '.*?\/sub'...\ndone.\n$/
+  );
+
+  // Assert the `.gitmodules` file is not empty (contains the module)
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitmodulesFile()),
+    [{ name: 'sub', path: 'sub', url: '../sub' }]
+  );
+
+  // Assert the `git ls-files` command returns the submodule
+  assert.deepEqual(
+    await drainAsyncGenerator(parseGitLsFilesCommand()),
+    ['sub']
+  );
+
+  // Assert the `.git/modules` directory is not empty (exists with the submodule)
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitModulesDirectory()),
+    ['sub']
+  );
+
+  // Assert the `.git/config` file has a corresponding `submodule` section
+  assert.deepEqual(
+    await drainAsyncGenerator(parseDotGitConfigFile()),
+    [{ active: true, name: 'sub', url: path.join(url.fileURLToPath(import.meta.url), '../sub') }]
   );
 
   await fs.promises.access('sub/README.md');
@@ -326,7 +352,6 @@ test('clone with submodules', async () => {
 
   await clearSubRepository();
   await clearSuperRepository();
-  await fs.promises.rm('super.git', { recursive: true });
 });
 
 // Note that this test tests the workflow moreso than it does the script itself
