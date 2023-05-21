@@ -6,7 +6,7 @@ runs:
     - name: Check out repository code
       uses: actions/checkout@main
       with:
-        # Note that `submodules: recursive` would fail if added to `.gitmodules` by hand
+        # Note `submodules: recursive` would not do `--remote` so we run by hand
         ref: main
 
     - name: Sync submodules
