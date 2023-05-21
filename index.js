@@ -151,7 +151,7 @@ if (process.env.SYNC_METADATA === 'true') {
       throw new Error(`No support for non-HTTPS URLs: ${dotGitmodule.url}`);
     }
 
-    console.log(`Syncing metadata for ${dotGitmodule.name}…`);
+    console.group(`Syncing metadata for ${dotGitmodule.name}…`);
 
     const titleResponse = await fetch(`https://api.github.com/repos${url.pathname}/readme`, init);
     const titleData = await titleResponse.json();
@@ -159,18 +159,26 @@ if (process.env.SYNC_METADATA === 'true') {
     const title = readme.match(/^# (?<title>.*?)\n/)?.groups?.title;
     if (title) {
       await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.title ${escapeShell(title)}`);
+      console.log(`Synced title: ${escapeShell(title)}`);
     }
 
     const response = await fetch(`https://api.github.com/repos${url.pathname}`, init);
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description ${escapeShell(description)}`);
+    console.log(`Synced description: ${escapeShell(description)}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created-at "${created_at}"`);
+    console.log(`Synced created-at: ${created_at}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated-at "${updated_at}"`);
+    console.log(`Synced updated-at: ${updated_at}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed-at "${pushed_at}"`);
+    console.log(`Synced pushed-at: ${pushed_at}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage ${escapeShell(homepage)}`);
+    console.log(`Synced homepage: ${escapeShell(homepage)}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived ${archived}`);
+    console.log(`Synced archived: ${archived}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.topics "${topics.join(',')}"`);
-    console.log(`Synced metadata for ${dotGitmodule.name}.`);
+    console.log(`Synced topics: ${topics.join(',')}`);
+    console.groupEnd();
   }
 }
