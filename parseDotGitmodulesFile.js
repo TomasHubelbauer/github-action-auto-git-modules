@@ -28,12 +28,15 @@ export default async function* parseDotGitmodulesFile() {
   for (const line of lines) {
     if (line.startsWith('[submodule "') && line.endsWith('"]')) {
       name = line.slice('[submodule "'.length, -'"]'.length);
+      break;
     }
     else if (line.startsWith('\tpath = ')) {
       path = line.slice('\tpath = '.length);
+      break;
     }
     else if (line.startsWith('\turl = ')) {
       url = line.slice('\turl = '.length);
+      break;
     }
     else if (line === '') {
       if (name === undefined && path === undefined && url === undefined) {
@@ -41,9 +44,6 @@ export default async function* parseDotGitmodulesFile() {
       }
 
       yield { name, path, url };
-    }
-    else {
-      throw new Error(`Unexpected line in .gitmodules: ${line}`);
     }
   }
 }
