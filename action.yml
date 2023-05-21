@@ -9,12 +9,12 @@ runs:
         # Note that `submodules: recursive` would fail if added to `.gitmodules` by hand
         ref: main
 
-    - name: Run the script
-      run: node ${{ github.action_path }}
-      shell: bash
-
     - name: Sync submodules
       run: git -c protocol.file.allow=always submodule update --init --recursive --remote
+      shell: bash
+
+    - name: Run the script
+      run: node ${{ github.action_path }}
       shell: bash
 
     - name: Print changes

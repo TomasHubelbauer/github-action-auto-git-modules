@@ -270,6 +270,30 @@ async function clearSubRepository() {
   await fs.promises.rm('sub', { recursive: true });
 }
 
+async function bareSuperRepository() {
+  process.chdir('super');
+
+  assert.equal(
+    await runCommand('git status'),
+    'On branch main\nnothing to commit, working tree clean\n'
+  );
+
+  await fs.promises.cp('.git', '../super.git', { recursive: true });
+
+  process.chdir('..');
+
+  await clearSuperRepository();
+}
+
+async function cloneSuperRepository() {
+  assert.equal(
+    await runCommand('git clone super.git super', 'stderr'),
+    'Cloning into \'super\'...\ndone.\n'
+  );
+
+  await fs.promises.rm('super.git', { recursive: true });
+}
+
 test('add submodule', async () => {
   await clearStrayDirectories();
   await makeSuperRepository();
@@ -294,26 +318,8 @@ test('clone with submodules', async () => {
   await makeSuperRepository();
   await makeSubRepository();
   await addSubmodule();
-
-  process.chdir('super');
-
-  assert.equal(
-    await runCommand('git status'),
-    'On branch main\nnothing to commit, working tree clean\n'
-  );
-
-  await fs.promises.cp('.git', '../super.git', { recursive: true });
-
-  process.chdir('..');
-
-  await clearSuperRepository();
-
-  assert.equal(
-    await runCommand('git clone super.git super', 'stderr'),
-    'Cloning into \'super\'...\ndone.\n'
-  );
-
-  await fs.promises.rm('super.git', { recursive: true });
+  await bareSuperRepository();
+  await cloneSuperRepository();
 
   process.chdir('super');
 
@@ -321,6 +327,10 @@ test('clone with submodules', async () => {
     await runCommand('git -c protocol.file.allow=always submodule update --init --recursive --remote', 'stdio'),
     /^Submodule path 'sub': checked out '\w{40}'\n\nSubmodule 'sub' \(.*?\/sub\) registered for path 'sub'\nCloning into '.*?\/sub'...\ndone.\n$/
   );
+
+  // Run the main script to ensure it works as a part of the workflow script
+  // Use the cache-buster to force the module to fully re-evaluate ach time
+  await import('./index.js?clone');
 
   // Assert the `.gitmodules` file is not empty (contains the module)
   assert.deepEqual(
