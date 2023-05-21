@@ -119,6 +119,8 @@ for (const dotGitmodule of dotGitmodules) {
   }
 }
 
+// TODO: Also fetch the README and add a `title` to the `.gitmodules` entry
+// See: https://api.github.com/repos/TomasHubelbauer/git-demo-submodule/readme
 if (process.env.SYNC_METADATA === 'true') {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN environment variable must be set to sync metadata.');
