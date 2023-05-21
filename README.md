@@ -173,3 +173,7 @@ Maybe the file system operations lag a little bit and there needs to be a delay
 between the tests or what.
 
 For now I run them one by one.
+
+### Add a test for metadata sync by mocking the API call
+
+https://github.com/TomasHubelbauer/node-test-runner-mock-fetch
