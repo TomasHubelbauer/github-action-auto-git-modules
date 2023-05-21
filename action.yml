@@ -39,7 +39,7 @@ runs:
       shell: bash
 
     - name: Stage the changes resulting from the above steps
-      run: git add *
+      run: git add .
       shell: bash
 
     - name: Bail if there are no changes staged to commit
