@@ -130,6 +130,8 @@ if (process.env.SYNC_METADATA === 'true') {
       throw new Error(`No support for non-HTTPS URLs: ${dotGitmodule.url}`);
     }
 
+    console.log(`Syncing metadata for ${dotGitmodule.name}…`);
+
     const response = await fetch(
       `https://api.github.com/repos${url.pathname}`,
       {
@@ -139,10 +141,16 @@ if (process.env.SYNC_METADATA === 'true') {
         }
       }
     );
+
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
-    console.log({
-      dotGitmodule, description, created_at, updated_at, pushed_at, homepage, archived, topics
-    });
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description "${description}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created_at "${created_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated_at "${updated_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed_at "${pushed_at}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage "${homepage}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived "${archived}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.topics "${topics.join(',')}"`);
+    console.log(`Synced metadata for ${dotGitmodule.name}.`);
   }
 }
