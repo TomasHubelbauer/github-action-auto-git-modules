@@ -5,6 +5,12 @@ added or removed that don't correspond to the required changes elsewhere in Git
 to properly add or remove the submodule, it syncs the rest of the Git repository
 to make the submodule properly added or removed.
 
+Additionally, optionally, by default, the Action also hits the GitHub API for
+metadata information for each submodule repository and adds and syncs this
+metadata as extra keys in `.gitmodules` for each module.
+See [How to disable metadata sync](#how-to-disable-metadata-sync) for how to
+disable this behavior.
+
 **Note:** It is crucial that the repository you use this Action in has the
 Settings > Actions > General > Workflow permissions > Read and write permissions
 permission enabled, otherwise the Action will not be able to push submodule
@@ -33,6 +39,18 @@ now serves as a demonstration for it:
 https://github.com/TomasHubelbauer/github-actions-auto-gitmodules 
 
 ## Notes
+
+### How to disable metadata sync
+
+Call this action like so:
+
+```yml
+steps:
+  - name: Sync .gitmodules changes with Git Modules
+    uses: TomasHubelbauer/github-action-auto-git-modules@main
+    with:
+      sync-metadata: false
+```
 
 ### GitHub Pages
 

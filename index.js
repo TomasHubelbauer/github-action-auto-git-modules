@@ -119,3 +119,35 @@ for (const dotGitmodule of dotGitmodules) {
     throw new Error(`Submodule ${name} is not active.`);
   }
 }
+
+if (process.env.SYNC_METADATA !== 'false') {
+  if (process.env.GITHUB_TOKEN) {
+    console.log('Syncing metadata for submodules using GitHub API with GITHUB_TOKEN.');
+  }
+  else {
+    console.log('Syncing metadata for submodules using GitHub API without GITHUB_TOKEN.');
+  }
+
+  for (const dotGitmodule of dotGitmodules) {
+    const url = new URL(dotGitmodule.url);
+    if (url.protocol !== 'https:') {
+      console.log('Skipping metadata sync for non-HTTPS submodule:', dotGitmodule.url);
+      continue;
+    }
+
+    const response = await fetch(
+      `https://api.github.com/repos${url.pathname}/contents/${dotGitmodule.path}`,
+      {
+        headers: {
+          Authorization: process.env.GITHUB_TOKEN ? `token ${process.env.GITHUB_TOKEN}` : undefined,
+          'User-Agent': 'TomasHubelbauer',
+        }
+      }
+    );
+    const data = await response.json();
+    const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
+    console.log({
+      url, description, created_at, updated_at, pushed_at, homepage, archived, topics
+    });
+  }
+}
