@@ -23,7 +23,7 @@ runs:
       shell: bash
       env:
         SYNC_METADATA: ${{ inputs.sync-metadata }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Print changes
       run: git status
