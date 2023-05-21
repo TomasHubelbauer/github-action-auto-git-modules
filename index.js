@@ -119,6 +119,13 @@ for (const dotGitmodule of dotGitmodules) {
   }
 }
 
+// Note that this is probably incorrect and Node doesn't ship an API for this
+// because "this seems like a userland thing hurr durr" ugh
+// See https://github.com/nodejs/node/issues/34840
+function escapeShell(string) {
+  return '"' + string.replace(/(["'$`\\])/g, '\\$1') + '"';
+}
+
 // TODO: Also fetch the README and add a `title` to the `.gitmodules` entry
 // See: https://api.github.com/repos/TomasHubelbauer/git-demo-submodule/readme
 if (process.env.SYNC_METADATA === 'true') {
@@ -147,18 +154,18 @@ if (process.env.SYNC_METADATA === 'true') {
     const readme = Buffer.from(titleData.content, 'base64').toString('utf8');
     const title = readme.match(/^# (?<title>.*?)\n/)?.groups?.title;
     if (title) {
-      await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.title "${title}"`);
+      await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.title ${escapeShell(title)}`);
     }
 
     const response = await fetch(`https://api.github.com/repos${url.pathname}`, init);
     const data = await response.json();
     const { description, created_at, updated_at, pushed_at, homepage, archived, topics } = data;
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description "${description}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.description ${escapeShell(description)}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.created-at "${created_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.updated-at "${updated_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.pushed-at "${pushed_at}"`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.homepage "${homepage}"`);
-    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived "${archived}"`);
+    await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.archived ${archived}`);
     await runCommand(`git config --file .gitmodules submodule.${dotGitmodule.name}.topics "${topics.join(',')}"`);
     console.log(`Synced metadata for ${dotGitmodule.name}.`);
   }
