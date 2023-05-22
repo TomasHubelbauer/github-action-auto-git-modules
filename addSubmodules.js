@@ -37,7 +37,8 @@ for (const dotGitmodule of dotGitmodules) {
   }
 
   // Reload the .git/config file with changes already applied by cache busting
-  const { default: dotGitConfig } = await import('./dotGitConfigFile.js?refresh');
+  // Use the module name as the cache buster so it reloads for each submodule
+  const { default: dotGitConfig } = await import('./dotGitConfigFile.js?' + dotGitmodule.name);
   console.log('addSubmodules: .git/config:');
   for (const { name, url, active } of dotGitConfig) {
     console.log(`\t${name}: ${url} (${active ? 'active' : 'inactive'})`);
