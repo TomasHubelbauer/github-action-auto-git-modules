@@ -9,6 +9,7 @@ import parseDotGitmodulesFile from './parseDotGitmodulesFile.js';
 import parseGitLsFilesCommand from './parseGitLsFilesCommand.js';
 import parseDotGitModulesDirectory from './parseDotGitModulesDirectory.js';
 import parseDotGitConfigFile from './parseDotGitConfigFile.js';
+import expandDotGitmodulesFileShorthandComments from './expandDotGitmodulesFileShorthandComments.js';
 
 async function clearStrayDirectories() {
   // Clean up stray `super` folder left in case the test failed on the prior run
@@ -118,12 +119,18 @@ async function makeSubRepository() {
   process.chdir('..');
 }
 
-async function addSubmodule(/** @type {string} */ context) {
+async function addSubmodule(/** @type {string} */ context, /** @type {boolean} */ shorthand) {
   // Go to the `super` directory to be able to add the submodule
   process.chdir('super');
 
   // Add the submodule to `.gitmodules` to simulate doing it via the GitHub web UI
-  await fs.promises.writeFile('.gitmodules', '[submodule "sub"]\n\tpath = sub\n\turl = ../sub\n');
+  if (shorthand) {
+    await fs.promises.writeFile('.gitmodules', '#+ ../sub\n');
+    await expandDotGitmodulesFileShorthandComments();
+  }
+  else {
+    await fs.promises.writeFile('.gitmodules', '[submodule "sub"]\n\tpath = sub\n\turl = ../sub\n');
+  }
 
   // Run the main script which should notice this and sort out the repo state
   // Use the cache-buster to force the module to fully re-evaluate ach time
@@ -299,6 +306,15 @@ test('add submodule', async () => {
   await makeSuperRepository();
   await makeSubRepository();
   await addSubmodule('add');
+  await clearSuperRepository();
+  await clearSubRepository();
+});
+
+test('add submodule with shorthand comment', async () => {
+  await clearStrayDirectories();
+  await makeSuperRepository();
+  await makeSubRepository();
+  await addSubmodule('add-shorthand', true);
   await clearSuperRepository();
   await clearSubRepository();
 });

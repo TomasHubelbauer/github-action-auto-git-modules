@@ -40,7 +40,34 @@ now serves as a demonstration for it:
 
 https://github.com/TomasHubelbauer/github-actions-auto-gitmodules 
 
+## Tests
+
+`node --test --test-name-pattern=…`
+
 ## Notes
+
+### How to use the submodule addition shortcut
+
+For convenience, I made it possible to add submodules just by adding a special
+comment into `.gitmodules` with the submodule repository URL, e.g.:
+
+`.gitmodules`
+```ini
+…
+
+#+ https://github.com/user/repo
+```
+
+This is a shorthand for doing this by hand:
+
+`.gitmodules`
+```ini
+…
+
+[submodule "repo"]
+  name = repo
+  url = https://github.com/user/repo
+```
 
 ### How to disable metadata sync
 
@@ -144,10 +171,6 @@ Update submodules:
 # Add `--remote` to update the submodule to latest
 git submodule update --recursive
 ```
-
-## Tests
-
-`node --test --test-name-pattern=…`
 
 ## Tasks
 
