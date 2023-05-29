@@ -9,7 +9,6 @@ import parseDotGitmodulesFile from './parseDotGitmodulesFile.js';
 import parseGitLsFilesCommand from './parseGitLsFilesCommand.js';
 import parseDotGitModulesDirectory from './parseDotGitModulesDirectory.js';
 import parseDotGitConfigFile from './parseDotGitConfigFile.js';
-import expandDotGitmodulesFileShorthandComments from './expandDotGitmodulesFileShorthandComments.js';
 
 async function clearStrayDirectories() {
   // Clean up stray `super` folder left in case the test failed on the prior run
@@ -126,7 +125,7 @@ async function addSubmodule(/** @type {string} */ context, /** @type {boolean} *
   // Add the submodule to `.gitmodules` to simulate doing it via the GitHub web UI
   if (shorthand) {
     await fs.promises.writeFile('.gitmodules', '#+ ../sub\n');
-    await expandDotGitmodulesFileShorthandComments();
+    await import('./expandDotGitmodulesFileShorthandComments.js?' + context);
   }
   else {
     await fs.promises.writeFile('.gitmodules', '[submodule "sub"]\n\tpath = sub\n\turl = ../sub\n');
