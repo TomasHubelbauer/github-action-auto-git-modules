@@ -4,6 +4,7 @@ export default async function expandDotGitmodulesFileShorthandComments() {
   const text = await fs.promises.readFile('.gitmodules', 'utf8');
   const lines = text.split('\n');
   for (const line of lines.splice(0)) {
+    console.log({ line });
     if (line.startsWith('#+')) {
       const url = line.slice('#+'.length).trim();
       const name = url.startsWith('./') || url.startsWith('../')
