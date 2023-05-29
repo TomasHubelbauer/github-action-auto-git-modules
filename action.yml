@@ -67,7 +67,7 @@ runs:
 
     - name: Commit the staged changes to the workflow repository
       if: ${{steps.bail.outputs.bail == 'false'}}
-      run: git commit -m "Commit submodules sync changes from the workflow"
+      run: git commit -m "Commit submodules sync changes from the workflow" -m "$(cat .git/commit-message.txt)"
       shell: bash
 
     - name: Rebase if the branch has changed meanwhile or fail on conflicts

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import assert from 'node:assert/strict';
 import runCommand from './runCommand.js';
 import dotGitmodules from './dotGitmodulesFile.js?add';
@@ -34,6 +35,7 @@ for (const dotGitmodule of dotGitmodules) {
     // Note that the `done.` part appears in tests but not in real runtime?
     assert.match(stderr, /^Cloning into '.*?'...\n(done.\n)?$/);
     console.log(`Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.`);
+    await fs.promises.appendFile('.git/commit-message.txt', `Added submodule ${dotGitmodule.name} to .git/modules because it is not in .git/modules.\n`);
   }
 
   // Reload the .git/config file with changes already applied by cache busting

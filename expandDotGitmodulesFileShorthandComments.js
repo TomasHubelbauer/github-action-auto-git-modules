@@ -10,6 +10,7 @@ for (const line of lines.splice(0)) {
       : new URL(url).pathname.split('/').pop();
 
     console.log(`Expanding submodule ${name} (${url}) form a shorthand comment`);
+    await fs.promises.appendFile('.git/commit-message.txt', `Expanded submodule ${name} (${url}) form a shorthand comment.\n`);
     lines.push(`[submodule "${name}"]`);
     lines.push(`\tpath = ${name}`);
     lines.push(`\turl = ${url}`);

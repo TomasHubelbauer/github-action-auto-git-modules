@@ -31,6 +31,7 @@ for (const gitLsFile of gitLsFiles) {
   if (!dotGitmodule) {
     const stdout = await runCommand(`git rm --cached ${gitLsFile}`);
     console.log(`Removed submodule ${gitLsFile} from index because it is not in .gitmodules: ${stdout}`);
+    await fs.promises.appendFile('.git/commit-message.txt', `Removed submodule ${gitLsFile} from index because it is not in .gitmodules.\n`);
   }
 }
 
@@ -41,6 +42,7 @@ for (const dotGitModule of dotGitModules) {
     await fs.promises.rm(`.git/modules/${dotGitModule}`, { recursive: true });
     if (process.env.CI) {
       console.log(`Removed submodule ${dotGitModule} from .git/modules because it is not in .gitmodules.`);
+      await fs.promises.appendFile('.git/commit-message.txt', `Removed submodule ${dotGitModule} from .git/modules because it is not in .gitmodules.\n`);
     }
   }
 }
@@ -52,6 +54,7 @@ for (const { name } of dotGitConfig) {
     const stdout = await runCommand(`git config --remove-section submodule.${name}`);
     if (process.env.CI) {
       console.log(`Removed submodule ${name} from .git/config because it is not in .gitmodules: ${stdout}`);
+      await fs.promises.appendFile('.git/commit-message.txt', `Removed submodule ${name} from .git/config because it is not in .gitmodules.\n`);
     }
   }
 }
